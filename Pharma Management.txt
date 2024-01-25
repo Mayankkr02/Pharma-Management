@@ -1,0 +1,127 @@
+create table Doctor(D_Name Varchar(20), specialty varchar(225), D_id int primary key, contact_no int default 102 )
+
+insert into doctor values('Noman Khan', 'Spine', 1, 4659523674)
+insert into doctor values('Piyush Sharma', 'Heart',2,3579631582)
+insert into doctor values('Prashant aggarwal', 'eye',3, default)
+insert into doctor values('Mehak meena', 'Brain', 4,3574136985)
+insert into doctor values('Raavi', 'Brain', 5, default)
+
+drop table doctor
+select * from doctor
+
+create table patient(Name varchar(20), address varchar(20), contact_no varchar(10), Gender varchar(10), patient_id int primary key, D_id_fk int, foreign key (D_id_fk) references Doctor (D_id))
+
+insert into patient values('Jasraj', 'Rohini','1234567891', 'Male', 100, 1)
+insert into patient values('Aryan', 'Ggn','2345678912', 'Male', 101, 2)
+insert into patient values('Parul', 'Rohini','3456789123', 'Female', 102, 2)
+insert into patient values('Gaurav', 'Haryana','4567891234', 'Male', 103, 4)
+insert into patient values('Aman', 'GTB','5678912345', 'Male', 104, 4)
+insert into patient values('Ishita', 'Saket','6789123456', 'Female', 105, 3)
+
+select*from patient
+drop table patient
+
+create table drug( medicine varchar(225) primary key, D_id_fk int, foreign key(D_id_fk) references Doctor(D_id))
+
+insert into drug values('Aminocaproic acid',2)
+insert into drug values('Morphine',1)
+insert into drug values('Nicotine',4)
+insert into drug values('Cannabinoids',4)
+insert into drug values('Marijuana',3)
+
+select*from drug
+drop table drug
+
+
+create table pharmacy(Name varchar(225), authorization_no int, Address varchar(225),phar_id int primary key, owner_name varchar(20))
+
+insert into pharmacy values('Om chemist', 25874,'Near saket',200,'Om Gupta')
+insert into pharmacy values('Pharma store', 68424,'INA',201,'Udhay')
+insert into pharmacy values('Chemist', 35482,'Rohini',202,'Ayush')
+insert into pharmacy values('General pharma', 89234,'Near Rohini',203,'Pratyush')
+insert into pharmacy values('Garg medicos', 89723,'Near GTB Nagar',204,'Shyam Garg')
+
+create or replace trigger t3
+before update on pharmacy
+for each row
+begin
+dbms_output.put_line('executing before update trigger');
+end;
+/
+
+create or replace trigger t4
+after update on pharmacy
+for each row
+begin
+dbms_output.put_line('executing after update trigger');
+insert into backup values(:old.Name, :old.authorization_no, :old.Address, :old.phar_id,
+:old.owner_name);
+end;
+/
+
+update pharmacy set owner_name = 'Mayank' where phar_id = 200
+
+
+create table backup(Name varchar(225), authorization_no int, Address varchar(225),phar_id int primary key, owner_name varchar(20))
+
+drop table backup
+
+select*from pharmacy
+drop table pharmacy
+
+create table sell(medicine_fk varchar(225),Phar_id_fk int,foreign key (medicine_fk) references drug(medicine), foreign key (Phar_id_fk) references pharmacy(Phar_id),primary key(medicine_fk,Phar_id_fk))
+insert into sell values('Morphine',200)
+insert into sell values('Nicotine',200)
+insert into sell values('Morphine',201)
+insert into sell values('Cannabinoids',202)
+insert into sell values('Morphine',204)
+insert into sell values('Marijuana',203)
+insert into sell values('Morphine',202)
+insert into sell values('Cannabinoids',201)
+
+select*from sell
+
+
+create table purchase_medicine(patient_id_fk int, Phar_id_fk int, foreign key(patient_id_fk) references patient(patient_id), foreign key (Phar_id_fk) references pharmacy(Phar_id), primary key(patient_id_fk,Phar_id_fk ))
+
+insert into purchase_medicine values(100,200)
+insert into purchase_medicine values(101,202)
+insert into purchase_medicine values(103,203)
+insert into purchase_medicine values(104,200)
+insert into purchase_medicine values(101,204)
+
+select*from purchase_medicine
+
+
+create table pharma_employee(Name varchar(20), age int check(age>=18), emp_id int primary key, salary int NOT NULL, phar_id_fk int, foreign key(phar_id_fk) references pharmacy(phar_id))
+
+insert into pharma_employee values('Ramesh', 21, 300,15000,200)
+insert into pharma_employee values('Suresh', 18, 301,20000,200)
+insert into pharma_employee values('Kamlesh', 20, 302,18000,202)
+insert into pharma_employee values('Gopal', 22, 303,20000,203)
+insert into pharma_employee values('Lakhan', 25, 304,17000,201)
+insert into pharma_employee values('Nikhil', 27, 305,19000,204)
+
+select*from pharma_employee
+
+
+create table delivery_man(Area_assigned varchar(225) unique, emp_id_fk int, foreign key(emp_id_fk) references pharma_employee(emp_id))
+
+insert into delivery_man values('Saket',300)
+insert into delivery_man values('INA',301)
+insert into delivery_man values('Rohini',302)
+insert into delivery_man values('Hauz Khas',303)
+insert into delivery_man values('GTB',304)
+
+select*from delivery_man
+
+
+create table employee_at_shop(customers_managed int, emp_id_fk int, foreign key(emp_id_fk) references pharma_employee(emp_id))
+
+insert into employee_at_shop values(70, 300)
+insert into employee_at_shop values(100, 301)
+insert into employee_at_shop values(65, 303)
+insert into employee_at_shop values(80, 302)
+insert into employee_at_shop values(120, 304)
+
+select*from employee_at_shop
